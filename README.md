@@ -75,4 +75,3 @@ curl -X DELETE http://localhost:3000/links/1
 ## Known limitations
 
 - Tag filtering uses a SQL `LIKE` substring match, so `?tag=ai` will also match tags like `email`.
-- `PATCH` requires sending both `read` and `note` together; partial updates aren't supported yet.

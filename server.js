@@ -24,11 +24,11 @@ app.get('/links', (req, res) => {
     const conditions = [];
     const params = [];
 
-    if (req.query.tag) {
+    if (req.query.tag !== undefined) {
         conditions.push('tags LIKE ?');
         params.push(`%${req.query.tag}%`);
     }
-    if (req.query.read) {
+    if (req.query.read !== undefined) {
         conditions.push('read = ?');
         params.push(req.query.read === 'true' ? 1 : 0);
     }
@@ -59,8 +59,25 @@ app.delete('/links/:id', (req, res) => {
 app.patch('/links/:id', (req, res) => {
     const id = req.params.id;
     const { read, note } = req.body;
-    const result = db.prepare('UPDATE links SET read = ?, note = ? WHERE id = ?')
-        .run(Number(read), note, id);
+    const updates = [];
+    const params = [];
+
+    if (read !== undefined) {
+        updates.push('read = ?');
+        params.push(Number(read));
+    }
+    if (note !== undefined) {
+        updates.push('note = ?');
+        params.push(note);
+    }
+
+    if (!updates.length) {
+        return res.status(400).json({error: 'No fields to update'});
+        
+    }
+    const result = db.prepare(`UPDATE links SET ${updates.join(', ')}
+            WHERE id = ?`).run(...params, id);
+    
     if (result.changes === 0) {
         return res.status(404).json({error: 'Link not found'});
     }
