@@ -16,6 +16,11 @@ app.get('/', (req, res) => {
 
 app.post('/links', (req, res) => {
   const { url, title, note, tags } = req.body;
+  
+  if (!url) {
+    return res.status(400).json({ error: 'url is required' });
+  }
+
   const stmt = db.prepare('INSERT INTO links (url, title, note, tags) VALUES (?, ?, ?, ?)');
   const result = stmt.run(url, title ?? null, note ?? null, tags ?? null);
   res.status(201).json({ id: result.lastInsertRowid });
