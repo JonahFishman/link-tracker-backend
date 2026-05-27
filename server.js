@@ -11,7 +11,7 @@ app.use(express.json());
 const port = 3000;
 
 app.get('/', (req, res) => {
-    res.send('Hello world');
+    res.send('Link Tracker API. See /links for endpoints.');
 });
 
 app.post('/links', (req, res) => {
