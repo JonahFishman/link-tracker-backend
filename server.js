@@ -1,6 +1,7 @@
 const Database = require('better-sqlite3');
 const fs = require('fs');
 const express = require('express');
+const cors = require('cors');
 
 const db = new Database('links.db');
 const schema = fs.readFileSync('schema.sql', 'utf8');
@@ -8,6 +9,7 @@ db.exec(schema);
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 const port = 3000;
 
 app.get('/', (req, res) => {
@@ -23,7 +25,8 @@ app.post('/links', (req, res) => {
 
   const stmt = db.prepare('INSERT INTO links (url, title, note, tags) VALUES (?, ?, ?, ?)');
   const result = stmt.run(url, title ?? null, note ?? null, tags ?? null);
-  res.status(201).json({ id: result.lastInsertRowid });
+  const link = db.prepare('SELECT * FROM links WHERE id = ?').get(result.lastInsertRowid);
+  res.status(201).json(link);
 });
 app.get('/links', (req, res) => {
     const conditions = [];
